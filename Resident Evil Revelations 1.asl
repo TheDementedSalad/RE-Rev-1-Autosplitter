@@ -19,6 +19,7 @@ startup
 
 start
 {
+	vars.totalGameTime = 0;
 	return current.IGT != old.IGT && old.IGT == 0;
 }
 
@@ -45,9 +46,9 @@ gameTime
 
 reset
 {
+	vars.totalGameTime = 0;
 	if(current.flatIGT == 0 && old.flatIGT > 0 ||
 	current.inMenu == 0 && old.inMenu == 1){
-		vars.totalGameTime = 0;
 		return true;
 	}
 	else{

@@ -2,7 +2,8 @@
 // Supports IGT
 // Supports all difficulties
 // Splits can be obtained from https://www.speedrun.com/rerev/resources
-// Script & Pointers by TheDementedSalad
+// Pointers by Sniffims and TheDementedSalad
+// Script by TheDementedSalad
 
 state("rerev")
 {
@@ -11,14 +12,19 @@ state("rerev")
 	byte inMenu: 0xD707E4, 0x139C;
 }
 
+startup
+{
+	vars.totalGameTime = 0;
+}
+
 start
 {
-	return current.flatIGT == 0 && current.IGT > old.IGT && old.IGT == 0; 
+	return current.IGT != old.IGT && old.IGT == 0;
 }
 
 split
 {
-	return current.IGT == 0 && old.IGT > 0 && current.flatIGT == old.flatIGT;
+	return current.IGT == 0 && old.IGT > 0;
 }
 
 isLoading
@@ -28,12 +34,23 @@ isLoading
 
 gameTime
 {
-	return TimeSpan.FromSeconds(current.flatIGT);
+	if(current.IGT > old.IGT){
+			return TimeSpan.FromSeconds(Math.Floor(vars.totalGameTime + current.IGT));
+		}
+		if(current.IGT == 0 && old.IGT > 0){
+			vars.totalGameTime = Math.Floor(vars.totalGameTime + old.IGT);
+			return TimeSpan.FromSeconds(Math.Floor(vars.totalGameTime + current.IGT));
+		}
 }
 
 reset
 {
-	return current.flatIGT == 0 && old.flatIGT > 0 ||
-	current.inMenu == 0 && old.inMenu == 1;
+	if(current.flatIGT == 0 && old.flatIGT > 0 ||
+	current.inMenu == 0 && old.inMenu == 1){
 		vars.totalGameTime = 0;
+		return true;
+	}
+	else{
+		return false;
+	}
 }

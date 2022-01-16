@@ -12,20 +12,14 @@ state("rerev")
 	byte inMenu: 0xD707E4, 0x139C;
 }
 
-startup
-{
-	vars.totalGameTime = 0;
-}
-
 start
 {
-	return current.IGT != old.IGT && old.IGT == 0;
-	vars.totalGameTime = 0;
+	return current.flatIGT == 0 && current.IGT > old.IGT && old.IGT == 0; 
 }
 
 split
 {
-	return current.IGT == 0 && old.IGT > 0;
+	return current.IGT == 0 && old.IGT > 0 && current.flatIGT == old.flatIGT;
 }
 
 isLoading
@@ -35,23 +29,11 @@ isLoading
 
 gameTime
 {
-	if(current.IGT > old.IGT){
-			return TimeSpan.FromSeconds(Math.Floor(vars.totalGameTime + current.IGT));
-		}
-		if(current.IGT == 0 && old.IGT > 0){
-			vars.totalGameTime = Math.Floor(vars.totalGameTime + old.IGT);
-			return TimeSpan.FromSeconds(Math.Floor(vars.totalGameTime + current.IGT));
-		}
+	return TimeSpan.FromSeconds(Math.Floor(current.flatIGT));
 }
 
 reset
 {
-	if(current.flatIGT == 0 && old.flatIGT > 0 ||
-	current.inMenu == 0 && old.inMenu == 1){
-		vars.totalGameTime = 0;
-		return true;
-	}
-	else{
-		return false;
-	}
+	return current.flatIGT == 0 && old.flatIGT > 0 ||
+	current.inMenu == 0 && old.inMenu == 1;
 }
